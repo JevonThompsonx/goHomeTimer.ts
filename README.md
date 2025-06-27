@@ -1,4 +1,4 @@
-# Go Home Team
+# Go Home Timer
 ---
 
 ## Overview
