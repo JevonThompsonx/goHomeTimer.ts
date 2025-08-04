@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 	"time"
 
 	"golang.org/x/oauth2"
@@ -68,7 +69,14 @@ func (a *App) CreateCalendarEvent(departureTimeStr string) string {
 	now := time.Now()
 	departureDateTime := time.Date(now.Year(), now.Month(), now.Day(), departureTime.Hour(), departureTime.Minute(), 0, 0, now.Location())
 
-	b, err := ioutil.ReadFile("credentials.json")
+	exePath, err := os.Executable()
+	if err != nil {
+		return fmt.Sprintf("Unable to get executable path: %v", err)
+	}
+	exeDir := filepath.Dir(exePath)
+	credentialsPath := filepath.Join(exeDir, "credentials.json")
+
+	b, err := ioutil.ReadFile(credentialsPath)
 	if err != nil {
 		return fmt.Sprintf("Unable to read client secret file: %v", err)
 	}
@@ -105,7 +113,13 @@ func (a *App) CreateCalendarEvent(departureTimeStr string) string {
 }
 
 func getClient(config *oauth2.Config) *http.Client {
-	tokFile := "token.json"
+	exePath, err := os.Executable()
+	if err != nil {
+		log.Fatalf("Unable to get executable path: %v", err)
+	}
+	exeDir := filepath.Dir(exePath)
+	tokFile := filepath.Join(exeDir, "token.json")
+
 	tok, err := tokenFromFile(tokFile)
 	if err != nil {
 		tok = getTokenFromWeb(config)
